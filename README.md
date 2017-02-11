@@ -13,3 +13,19 @@ test (works under u16)
 cd /opt/logstash/bin/
 ./logstash -e 'input { stdin { } } output { stdout {}}'
 ```
+
+```
+vim /etc/logstash/conf.d/logstash-sample.conf
+```
+edit
+```
+input {
+  stdin {}
+}
+output {
+  stdout {}
+}
+```
+```
+./logstash -f /etc/logstash/conf.d/logstash-sample.conf
+```
