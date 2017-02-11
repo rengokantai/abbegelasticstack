@@ -13,7 +13,7 @@ test (works under u16)
 cd /opt/logstash/bin/
 ./logstash -e 'input { stdin { } } output { stdout {}}'
 ```
-
+ctrl d to exit.
 ```
 vim /etc/logstash/conf.d/logstash-sample.conf
 ```
@@ -28,4 +28,98 @@ output {
 ```
 ```
 ./logstash -f /etc/logstash/conf.d/logstash-sample.conf
+```
+
+
+##2. Getting Started with Elasticsearch
+```
+wget -qO - https://packages.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add - && echo "deb https://packages.elastic.co/elasticsearch/2.x/debian stable main" | sudo tee -a /etc/apt/sources.list.d/elasticsearch-2.x.list
+apt update && apt install elasticsearch && update-rc.d elasticsearch defaults
+```
+
+```
+service elasticsearch start
+curl -X GET 'http://localhost:9200'
+```
+
+### Configuring Elasticsearch on Ubuntu 16.04.1 LTS
+check health
+```
+curl 'localhost:9200/_cat/health?v'
+```
+
+put first index
+```
+curl -XPUT 'localhost:9200/sampleindex?pretty'
+```
+list indices
+```
+curl 'localhost:9200/_cat/indices?v'
+```
+delete the index
+```
+curl -XDELETE 'localhost:9200/sampleindex?pretty'
+```
+lsit all plugins
+```
+cd /usr/share/elasticsearch/
+bin/plugin list
+```
+
+
+
+##3. Getting Started with Kibana
+```
+echo "deb http://packages.elastic.co/kibana/4.6/debian stable main" | sudo tee -a /etc/apt/sources.list.d/kibana.list && apt update && apt install kibana && update-rc.d kibana defaults 95 10
+```
+[update-rc.d cheat sheet](https://www.jamescoyle.net/cheat-sheets/791-update-rc-d-cheat-sheet)
+######Exaplanation
+```
+update-rc.d apache2 defaults [START] [KILL]
+```
+The below command will start mysql first, then apache2. On shutdown, the kill will be the reverse of the start with apache2 being killed first and mysql second.
+```
+update-rc.d apache2 defaults 90 90
+update-rc.d mysql defaults 10 10
+```
+
+
+configure using httpd/apache2
+```
+vim /etc/logstash/conf.d/01-webserver.conf
+```
+edit
+```
+input {
+  file {
+    path => "/var/httpd/logs/access_log"   #for u16 "/var/log/apache2/access_log"
+    start_position => "beginning"
+  }
+}
+filter {
+if [type] == "apache-access"
+{
+    grok {
+      match => { "message" => "%{COMBINEDAPACHELOG}" }
+    }
+  }
+  date {
+    match => [ "timestamp" , "dd/MMM/yyyy:HH:mm:ss Z" ]
+  }
+}
+output {
+  elasticsearch {
+    hosts => ["localhost:9200"]
+  }
+  stdout { codec => rubydebug }
+}
+```
+###Kibana Plug-ins
+```
+cd /opt/kibana/bin/
+./kibana plugin -i elasticsearch/graph/latest
+```
+####remove
+```
+./kibana plugin --remove graph
 ```
