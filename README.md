@@ -123,3 +123,34 @@ cd /opt/kibana/bin/
 ```
 ./kibana plugin --remove graph
 ```
+##8. Securing the ELK Stack with Shield
+install shield on u16
+```
+cd /usr/share/elasticsearch/ && bin/plugin install license && bin/plugin install shield
+```
+###IP Filtering
+allow
+```
+shield.transport.filter.allow: "192.168.1.1"
+```
+disallow
+```
+shield.transport.filter.deny: "192.168.1.10"
+```
+allow rules will always appear first, followed by deny rules.
+```
+shield.transport.filter.allow: "192.168.1.1"
+shield.transport.filter.deny: "192.168.1.10"
+```
+lists:
+```
+shield.transport.filter.allow: ["192.168.1.1",  "192.168.1.11", "192.168.1.21",  192.168.1.99"]
+```
+all connections that are not allowed:
+```
+shield.transport.filter.deny: _all
+```
+hostname filtering
+```
+shield.transport.filter.deny: '*.yahoo.com'
+```
