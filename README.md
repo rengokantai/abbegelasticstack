@@ -154,3 +154,48 @@ hostname filtering
 ```
 shield.transport.filter.deny: '*.yahoo.com'
 ```
+
+###Adding a User to Shield
+```
+vim /etc/elasticsearch/shield/roles.yml
+```
+create user
+```
+cd /usr/share/elasticsearch/
+bin/shield/esusers useradd es_admin -r admin -p admin123  
+```
+login elasticsearch using user
+```
+curl -u es_admin -XGET 'http://localhost:9200/'
+```
+
+kibana
+```
+vim /opt/kibana/config/kibana.yml
+```
+edit
+```
+elasticsearch.username: "es_admin"
+elasticsearch.password: "admin123"
+```
+
+###Configuring Logstash to Use Authentication
+```
+output {
+  elasticsearch {
+    hosts => ["localhost:9200"]
+   user => es_admin
+    password => admin123
+  }
+}
+```
+###Configuring Filebeat to Use Authentication
+```
+vim /etc/filebeat/filebeat.yml
+```
+edit
+```
+protocol: "http"
+username: "es_admin"
+password: "admin123"
+```
