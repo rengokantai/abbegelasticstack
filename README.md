@@ -123,6 +123,85 @@ cd /opt/kibana/bin/
 ```
 ./kibana plugin --remove graph
 ```
+
+
+
+
+
+
+
+
+##7. Configuring Elasticsearch Watcher
+```
+cd /usr/share/elasticsearch/
+bin/plugin install license
+bin/plugin install watcher
+service elasticsearch restart
+```
+To test whether Watcher is working, run the following commands:
+```
+curl -XGET 'http://localhost:9200/_watcher/stats?pretty'
+```
+
+or
+```
+curl -XPUT 'http://localhost:9200/_watcher/watch/logstash_watch' -d '{
+  "trigger" : {
+    "schedule" : { "interval" : "15s" }
+  },
+  "input" : {
+    "search" : {
+      "request" : {
+        "indices" : [ "logstash" ],
+        "body" : {
+          "query" : {
+            "match" : { "message": "error" }
+          }
+        }
+      }
+    }
+  }
+,
+"condition" : {
+    "compare" : { "ctx.payload.hits.total" : { "gt" : 0 }}
+  }
+,
+"actions" : {
+    "log_error" : {
+      "logging" : {
+        "text" : "Found {{ctx.payload.hits.total}} errors in the logs"
+      }
+    }
+  }
+}    
+```
+
+###Installing Sense Editor
+```
+cd /opt/kibana/
+bin/kibana plugin --install elastic/sense
+```
+open
+```
+http://yourip:5601/app/sense
+```
+search
+```
+GET .watch_history-2016.09.29
+/_search
+        "query": {
+        "match_all": {}
+      }
+```
+
+###Deleting Watches
+```
+curl -XDELETE 'http://localhost:9200/_watcher/watch/logstash_watch'
+```
+
+
+
+
 ##8. Securing the ELK Stack with Shield
 install shield on u16
 ```
