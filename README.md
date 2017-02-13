@@ -125,8 +125,29 @@ cd /opt/kibana/bin/
 ```
 
 
+##6. Graphite Monitoring and Graphs
+c7
+```
+yum check-update
+yum update && yum install -y epel-release
+```
+```
+yum install pycairo django bitmap bitmap-fonts mod_wsgi python-pip python-devel gcc httpd
+```
+```
+pip install --upgrade pip
+```
+```
+pip install carbon
+ pip install whisper
+pip install graphite-web
+pip install "django-tagging<0.4"
+```
 
-
+then
+```
+cp /opt/graphite/conf/carbon.conf.example /opt/graphite/conf/carbon.conf
+```
 
 
 
